@@ -1,0 +1,43 @@
+[package]
+name = "webp-converter"
+version = "1.0.0"
+edition = "2021"
+authors = ["WebP Converter Team"]
+description = "A high-performance WebP image converter built with Rust"
+license = "MIT"
+repository = "https://github.com/your-username/webp-converter"
+
+[dependencies]
+# Command line argument parsing
+clap = { version = "4.4", features = ["derive", "color", "suggestions"] }
+
+# Image processing
+image = { version = "0.24", features = ["webp", "png", "jpeg"] }
+
+# WebP encoding
+webp = "0.3"
+
+# Error handling
+anyhow = "1.0"
+thiserror = "1.0"
+
+# Directory traversal
+walkdir = "2.4"
+
+# Timing and performance
+tokio = { version = "1.0", features = ["full"], optional = true }
+
+# Progress bars (optional)
+indicatif = { version = "0.17", optional = true }
+
+[features]
+default = []
+async = ["tokio"]
+progress = ["indicatif"]
+
+[[bin]]
+name = "webp-converter"
+path = "src/main.rs"
+
+[dev-dependencies]
+tempfile = "3.8"

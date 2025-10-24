@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cat:*)",
+      "Bash(python:*)",
+      "Bash(python3:*)",
+      "Bash(py:*)",
+      "Bash(cargo init:*)",
+      "Bash(where:*)",
+      "Bash(curl:*)",
+      "Bash(sh:*)",
+      "Bash($env:PATH = \"$env:USERPROFILE\\.cargo\\bin;$env:PATH\")",
+      "Bash(cargo:*)",
+      "Bash(export:*)",
+      "Bash(dir:*)",
+      "Bash(./target/release/webp-converter:*)",
+      "Bash(./rust/target/release/webp-converter.exe:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
