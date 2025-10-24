@@ -56,6 +56,7 @@ impl WebPConverter {
         &self,
         input_path: &Path,
         output_path: Option<&Path>,
+        output_folder: Option<&Path>,
     ) -> WebPResult<ConversionStats> {
         // Validate input file
         if !utils::is_valid_image(input_path) {
@@ -63,12 +64,27 @@ impl WebPConverter {
         }
 
         // Generate output path if not provided
-        let generated_path = utils::generate_output_path(input_path);
-        let output_path = output_path.unwrap_or(&generated_path);
+        let output_path = if let Some(output_path) = output_path {
+            output_path.to_path_buf()
+        } else if let Some(output_folder) = output_folder {
+            // Create output folder if it doesn't exist
+            std::fs::create_dir_all(output_folder)
+                .map_err(|e| WebPError::IoError(e))?;
+
+            let file_name = input_path
+                .file_stem()
+                .ok_or_else(|| WebPError::InvalidFileName(input_path.to_path_buf()))?
+                .to_str()
+                .ok_or_else(|| WebPError::InvalidFileName(input_path.to_path_buf()))?;
+
+            output_folder.join(format!("{}.webp", file_name))
+        } else {
+            utils::generate_output_path(input_path)
+        };
 
         // Perform conversion
         let (time_taken, original_size, compressed_size) =
-            self.convert_image_to_webp(input_path, output_path)?;
+            self.convert_image_to_webp(input_path, &output_path)?;
 
         // Create and return stats
         let mut stats = ConversionStats::new();
@@ -82,6 +98,7 @@ impl WebPConverter {
         &self,
         directory: &Path,
         recursive: bool,
+        output_folder: Option<&Path>,
     ) -> WebPResult<ConversionStats> {
         if !directory.exists() {
             return Err(WebPError::InputNotFound(directory.to_path_buf()));
@@ -107,7 +124,22 @@ impl WebPConverter {
             }
 
             // Convert the image
-            let output_path = utils::generate_output_path(img_file);
+            let output_path = if let Some(output_folder) = output_folder {
+                // Create output folder if it doesn't exist
+                std::fs::create_dir_all(output_folder)
+                    .map_err(|e| WebPError::IoError(e))?;
+
+                let file_name = img_file
+                    .file_stem()
+                    .ok_or_else(|| WebPError::InvalidFileName(img_file.to_path_buf()))?
+                    .to_str()
+                    .ok_or_else(|| WebPError::InvalidFileName(img_file.to_path_buf()))?;
+
+                output_folder.join(format!("{}.webp", file_name))
+            } else {
+                utils::generate_output_path(img_file)
+            };
+
             match self.convert_image_to_webp(img_file, &output_path) {
                 Ok((time_taken, original_size, compressed_size)) => {
                     stats.add_success(time_taken, original_size, compressed_size);

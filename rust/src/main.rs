@@ -78,6 +78,13 @@ struct Args {
         help = "Show detailed conversion information"
     )]
     verbose: bool,
+
+    /// Custom output folder for converted images
+    #[arg(
+        long = "output-folder",
+        help = "Output folder for converted images (e.g., ./out)"
+    )]
+    output_folder: Option<PathBuf>,
 }
 
 fn main() -> Result<()> {
@@ -101,13 +108,13 @@ fn main() -> Result<()> {
     // Process input based on type
     let result = if args.input.is_file() {
         // Single file conversion
-        converter.convert_single_file(&args.input, args.output.as_deref())
+        converter.convert_single_file(&args.input, args.output.as_deref(), args.output_folder.as_deref())
     } else if args.input.is_dir() {
         // Directory batch conversion
         if args.output.is_some() {
             println!("⚠️  Warning: Output path is ignored when processing directories");
         }
-        converter.convert_directory(&args.input, args.recursive)
+        converter.convert_directory(&args.input, args.recursive, args.output_folder.as_deref())
     } else {
         return Err(WebPError::InvalidInputType(args.input.clone()).into());
     };
@@ -134,6 +141,9 @@ fn print_verbose_info(args: &Args) {
     println!("📂 Input: {}", args.input.display());
     if let Some(output) = &args.output {
         println!("📁 Output: {}", output.display());
+    }
+    if let Some(output_folder) = &args.output_folder {
+        println!("📂 Output folder: {}", output_folder.display());
     }
     println!("🎯 Quality: {}%", args.quality);
     println!("🔒 Lossless: {}", args.lossless);

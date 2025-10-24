@@ -15,6 +15,9 @@ pub enum WebPError {
     #[error("Invalid or unsupported image file: {0}")]
     InvalidImage(PathBuf),
 
+    #[error("Invalid file name: {0}")]
+    InvalidFileName(PathBuf),
+
     #[error("Image processing failed: {0}")]
     ImageProcessingError(String),
 
